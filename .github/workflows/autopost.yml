@@ -1,0 +1,22 @@
+name: Facebook AutoPoster
+
+on:
+  schedule:
+    # 16:00 UTC Monday and Thursday = 09:00 AM PT
+    - cron: '0 16 * * 1,4'
+
+jobs:
+  run_autopost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - run: pip install requests schedule pytz
+      - env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          PRODUCT_IMAGE_URL: ${{ secrets.PRODUCT_IMAGE_URL }}
+          PRODUCT_LINK: ${{ secrets.PRODUCT_LINK }}
+        run: python facebook_autopost.py
