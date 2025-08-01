@@ -1,0 +1,37 @@
+name: Facebook AutoPost
+
+on:
+  workflow_dispatch:
+    inputs:
+      caption:
+        description: 'Caption for the Facebook post'
+        required: true
+        type: string
+      image_url:
+        description: 'Optional image URL'
+        required: false
+        type: string
+
+jobs:
+  post_to_facebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Facebook
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+        run: |
+          CAPTION="${{ github.event.inputs.caption }}"
+          IMAGE_URL="${{ github.event.inputs.image_url }}"
+          if [ -z "$IMAGE_URL" ]; then
+            # Post status without image
+            curl -X POST "https://graph.facebook.com/v19.0/$FB_PAGE_ID/feed" \
+            -d "message=$CAPTION" \
+            -d "access_token=$FB_PAGE_TOKEN"
+          else
+            # Post photo with image URL
+            curl -X POST "https://graph.facebook.com/v19.0/$FB_PAGE_ID/photos" \
+            -d "url=$IMAGE_URL" \
+            -d "caption=$CAPTION" \
+            -d "access_token=$FB_PAGE_TOKEN"
+          fi
